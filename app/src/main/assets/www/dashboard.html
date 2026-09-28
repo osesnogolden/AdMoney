@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0369a1">
+  <meta name="description" content="Panel financiero de AdMoney.">
+  <title>AdMoney - Dashboard</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="assets/logo.png" alt="Logotipo de AdMoney">
+      <span class="brand-text"><strong>AdMoney</strong><small>Tu dinero en orden</small></span>
+    </div>
+    <div class="top-actions">
+      <div class="user-chip"><span class="avatar" id="userInitial">A</span><span class="user-name" id="userName">Usuario</span></div>
+      <button class="btn hidden" id="installBtn" type="button" title="Instalar AdMoney"><span>Instalar</span> ↓</button>
+      <button class="btn" id="logoutBtn" type="button"><span>Cerrar sesión</span> ↪</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="page-intro">
+      <div>
+        <h1>Hola, <span id="welcomeName">usuario</span></h1>
+        <p>Registra tus movimientos y revisa tu situación financiera en pesos mexicanos.</p>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn-secondary" id="categoriesBtn" type="button">Categorías</button>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="Resumen financiero">
+      <article class="summary-card income"><div class="label">Ingresos acumulados</div><div class="value" id="totalIncome">$0.00</div><div class="meta" id="monthIncomeMeta">$0.00 este mes</div></article>
+      <article class="summary-card expense"><div class="label">Gastos acumulados</div><div class="value" id="totalExpense">$0.00</div><div class="meta" id="monthExpenseMeta">$0.00 este mes</div></article>
+      <article class="summary-card balance"><div class="label">Saldo disponible</div><div class="value" id="balance">$0.00</div><div class="meta" id="monthBalanceMeta">$0.00 este mes</div></article>
+      <article class="summary-card"><div class="label">Movimientos</div><div class="value" id="movementCount">0</div><div class="meta" id="movementMeta">0 este mes</div></article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel entry-panel">
+        <div class="panel-head"><h2>Registrar movimiento</h2></div>
+        <div class="panel-body">
+          <form id="movementForm">
+            <input type="hidden" id="movementType" value="gasto">
+            <div class="field span-2">
+              <label>Tipo</label>
+              <div class="segmented" role="group" aria-label="Tipo de movimiento">
+                <button type="button" data-type="ingreso">Ingreso</button>
+                <button type="button" data-type="gasto" class="active">Gasto</button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label for="amount">Cantidad (MXN)</label><input id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required></div>
+              <div class="field"><label for="movementDate">Fecha</label><input id="movementDate" type="date" required></div>
+              <div class="field span-2"><label for="category">Categoría</label><select id="category" required></select></div>
+              <div class="field span-2"><label for="note">Descripción (opcional)</label><textarea id="note" maxlength="160" placeholder="Ej. comida en la universidad, beca, transporte..."></textarea></div>
+              <div class="span-2 form-actions">
+                <button class="btn btn-primary" id="submitMovement" type="submit">Guardar movimiento</button>
+                <button class="btn btn-neutral hidden" id="cancelEdit" type="button">Cancelar edición</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h2>Ingresos vs. gastos - últimos 6 meses</h2><span class="install-note">Verde = ingreso · rojo = gasto</span></div>
+        <div class="panel-body"><div class="chart-wrap"><canvas id="cashflowChart" aria-label="Gráfica de ingresos y gastos"></canvas></div></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h2>Gastos por categoría - mes actual</h2></div>
+        <div class="panel-body"><div id="categoryBreakdown" class="category-list"></div></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Resumen mensual</h2>
+          <input id="summaryMonth" type="month" aria-label="Mes del resumen">
+        </div>
+        <div class="panel-body">
+          <div class="month-summary">
+            <div class="month-box"><small>Ingresos</small><strong id="monthIncome">$0.00</strong></div>
+            <div class="month-box"><small>Gastos</small><strong id="monthExpense">$0.00</strong></div>
+            <div class="month-box"><small>Saldo</small><strong id="monthBalance">$0.00</strong></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="panel-head">
+        <h2>Historial de movimientos</h2>
+        <button class="btn btn-ghost" id="clearFilters" type="button">Limpiar filtros</button>
+      </div>
+      <div class="panel-body">
+        <div class="filters">
+          <input id="filterSearch" type="search" placeholder="Buscar categoría o descripción..." aria-label="Buscar movimientos">
+          <select id="filterType" aria-label="Filtrar por tipo"><option value="">Todos los tipos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option></select>
+          <input id="filterMonth" type="month" aria-label="Filtrar por mes">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th>Cantidad</th><th>Acciones</th></tr></thead>
+          <tbody id="movementRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="footer-note">Prototipo académico: los datos se almacenan localmente en el navegador de este dispositivo. Para uso comercial se requiere backend, base de datos, autenticación de servidor, cifrado y controles legales de privacidad.</p>
+  </main>
+</div>
+
+<div class="modal-backdrop hidden" id="categoryModal" role="dialog" aria-modal="true" aria-labelledby="categoryTitle">
+  <section class="modal">
+    <div class="modal-head"><h2 id="categoryTitle">Administrar categorías</h2><button class="close-btn" id="closeCategoryModal" type="button" aria-label="Cerrar">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label for="managerType">Tipo de categoría</label><select id="managerType"><option value="gasto">Gastos</option><option value="ingreso">Ingresos</option></select></div>
+      <div class="category-manager"><input id="newCategory" maxlength="40" placeholder="Nueva categoría"><button class="btn btn-primary" id="addCategory" type="button">Agregar</button></div>
+      <div class="tag-list" id="categoryTags"></div>
+      <p class="hint" style="margin-top:14px">Las categorías usadas por un movimiento no se pueden eliminar desde este panel.</p>
+    </div>
+  </section>
+</div>
+<div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

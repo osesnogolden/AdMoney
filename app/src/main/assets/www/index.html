@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0369a1">
+  <title>AdMoney</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <script>
+    try { location.replace(sessionStorage.getItem('usuarioSesion') ? 'dashboard.html' : 'login.html'); }
+    catch (_) { location.replace('login.html'); }
+  </script>
+</head>
+<body>
+  <p><a href="login.html">Abrir AdMoney</a></p>
+</body>
+</html>

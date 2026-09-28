@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0369a1">
+  <meta name="description" content="AdMoney - control sencillo de ingresos y gastos para estudiantes.">
+  <title>AdMoney - Iniciar sesión</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <main class="auth-page">
+    <section class="auth-hero" aria-label="Presentación de AdMoney">
+      <div class="brand">
+        <img class="brand-logo" src="assets/logo.png" alt="Logotipo de AdMoney">
+        <span class="brand-text"><strong>AdMoney</strong><small>Control estudiantil de ingresos y gastos</small></span>
+      </div>
+      <div>
+        <h1>Tu dinero universitario, claro y en un solo lugar.</h1>
+        <p>Registra ingresos y gastos, revisa tu saldo, consulta tus movimientos y entiende mejor cómo se distribuye tu dinero sin usar conceptos contables complicados.</p>
+        <div class="hero-pills">
+          <span class="hero-pill">Ingresos y gastos</span><span class="hero-pill">Categorías</span><span class="hero-pill">Gráficas</span><span class="hero-pill">Resumen mensual</span><span class="hero-pill">PC y móvil</span>
+        </div>
+      </div>
+      <div class="hero-foot">Prototipo académico AdMoney · UAEMex Valle de Chalco · 2026</div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div class="brand">
+          <img class="brand-logo" src="assets/logo.png" alt="Logotipo de AdMoney">
+          <span class="brand-text"><strong>AdMoney</strong><small>Bienvenido</small></span>
+        </div>
+        <h2>Iniciar sesión</h2>
+        <p class="subtitle">Accede a tu panel financiero personal.</p>
+        <form id="formLogin">
+          <div class="field">
+            <label for="correo">Correo electrónico</label>
+            <input type="email" id="correo" autocomplete="email" placeholder="correo@ejemplo.com" required>
+          </div>
+          <div class="field">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" autocomplete="current-password" minlength="6" placeholder="Ingresa tu contraseña" required>
+          </div>
+          <p class="hint">Mínimo 6 caracteres, con 1 mayúscula, 1 número y 1 carácter especial.</p>
+          <button class="btn btn-primary btn-block" type="submit">Iniciar sesión</button>
+          <div id="mensaje" class="message" role="status" aria-live="polite"></div>
+        </form>
+        <p class="auth-switch">¿No tienes una cuenta? <a href="registro.html">Crear cuenta</a></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    AdMoneyAuth.redirectIfLogged();
+    document.getElementById('formLogin').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const mensaje = document.getElementById('mensaje');
+      mensaje.className = 'message';
+      mensaje.textContent = 'Validando...';
+      try {
+        const correo = document.getElementById('correo').value;
+        const password = document.getElementById('password').value;
+        if (!/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}$/.test(password)) throw new Error('La contraseña no cumple el formato requerido.');
+        await AdMoneyAuth.login(correo, password);
+        mensaje.className = 'message ok';
+        mensaje.textContent = 'Inicio de sesión correcto.';
+        setTimeout(() => location.replace('dashboard.html'), 350);
+      } catch (error) {
+        mensaje.className = 'message error';
+        mensaje.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>
